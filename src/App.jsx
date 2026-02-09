@@ -1,16 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/Loginpage';
+
+import { HashRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+// import ReceptionistDash from './pages/ReceptionistDash';
 
 function App() {
     return (
-        <Router>
+
+        <HashRouter>
             <Routes>
-
                 <Route path="/" element={<LoginPage />} />
-
+                {/*<Route path="/receptionist" element={<ReceptionistDash />} />*/}
             </Routes>
-        </Router>
+        </HashRouter>
     );
 }
 
