@@ -11,6 +11,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginPage />} />
                 {/*<Route path="/receptionist" element={<ReceptionistDash />} />*/}
+                {/*hehehhe*/}
             </Routes>
         </HashRouter>
     );
