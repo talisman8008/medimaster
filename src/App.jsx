@@ -2,7 +2,7 @@ import React from 'react';
 
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-// import ReceptionistDash from './pages/ReceptionistDash';
+import ReceptionistDash from './pages/ReceptionistDash';
 
 function App() {
     return (
@@ -10,7 +10,7 @@ function App() {
         <HashRouter>
             <Routes>
                 <Route path="/" element={<LoginPage />} />
-                {/*<Route path="/receptionist" element={<ReceptionistDash />} />*/}
+                <Route path="/receptionist" element={<ReceptionistDash />} />
                 {/*hehehhe*/}
             </Routes>
         </HashRouter>
