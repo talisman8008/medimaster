@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-
 const MOCKDB = {
     '9082240521': {
         password: 'aloo',
@@ -14,6 +12,10 @@ const MOCKDB = {
     '8369930634': {
         password: '1234',
         profiles: [{ id: 69, name: 'Jalahua Anada', role: 'receptionist' }]
+    },
+    '8104503411': {
+        password: '4321',
+        profiles: [{ id: 69, name: 'Jalahua Anada', role: 'receptionist-v1' }]
     }
 };
 
@@ -58,10 +60,11 @@ const LoginPage = () => {
     const navigateBasedOnRole=(role)=>{
         if (role==='receptionist') {
             navigate('/receptionist');
+        }else if (role === 'receptionist-v1'){
+            navigate('/receptionist2')
         }
         else {
             navigate('/patient-dashboard');
-            console.log("hehe "+role);
         }
     };
 

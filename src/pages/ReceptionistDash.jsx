@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    Search, Plus, Bell, User,
+    CheckCircle, XCircle, Edit, Trash2,House
+} from 'lucide-react';
 
 const ReceptionistDash = () => {
   const navigate = useNavigate();
@@ -13,33 +17,41 @@ const ReceptionistDash = () => {
 
   ]);
 
-  const [appointments] = useState([
-    { id: 101, name: 'Rohan Sharma', age: 24, doctor: 'Dr. A. Gupta', status: 'Waiting', time: '10:30 AM' },
-    { id: 102, name: 'Anjali Verma', age: 34, doctor: 'Dr. S. Khan', status: 'In-Progress', time: '10:45 AM' },
-    { id: 103, name: 'Vikram Singh', age: 56, doctor: 'Dr. A. Gupta', status: 'Done', time: '10:00 AM' },
-    { id: 104, name: 'Priya Reddy', age: 29, doctor: 'Dr. R. Kapoor', status: 'Waiting', time: '11:00 AM' },
-  ]);
+    const [patients, setPatients] = useState([
+        { id: 101, token: 101, name: "Rohan Sharma", age: 69, doctor: "Dr. A. Gupta", time: "10:30 AM", status: "Waiting", phone: "9876543210" },
+        { id: 102, token: 102, name: "Anjali Verma", age: 96, doctor: "Dr. S. Khan", time: "10:45 AM", status: "in-progress", phone: "9876543211" },
+        { id: 103, token: 103, name: "Vikram Singh", age: 42, doctor: "Dr. A. Gupta", time: "10:00 AM", status: "done", phone: "9876543212" },
+    ]);
+    const [searchTerm,setSearchTerm]=useState("");
+        const filter=patients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.phone.includes(searchTerm)
+        );
+    const [isModalOpen,setIsModalOpen]=useState(false);
+    const [newPatient, setNewPatient] = useState({ name: '', age: '', doctor: '', phone: '' });
+
+    useEffect(()=>{
+        document.title="ReceptionDash-v1 |Medflow";
+    },[]);
 
   return (
+
     <div className="min-h-screen bg-gray-50 flex">
       
       {/* --- SIDEBAR --- */}
-      <aside className="w-64 bg-[#112025] text-white flex flex-col hidden md:flex">
+      <aside className="w-25  bg-[#112025] text-white flex flex-col hidden md:flex">
         <div className="p-6 text-2xl font-bold tracking-wide">
           Med<span className="text-[#396d7c]">Flow</span>
         </div>
-        
-        <nav className="flex-1 px-4 space-y-2 mt-6">
-          <NavItem icon="🏠" label="Dashboard" active />
-          <NavItem icon="➕" label="New Registration" />
-          <NavItem icon="📅" label="Appointments" />
-          <NavItem icon="👨‍⚕️" label="Doctors List" />
-          <NavItem icon="⚙️" label="Settings" />
-        </nav>
 
-        <div className="p-4 border-t border-gray-700">
-          <button 
-            onClick={() => navigate('/')} 
+        {/*<nav className="flex-1 px-4 space-y-2 mt-6">*/}
+        {/*  <NavItem icon="🏠" label="Dashboard" active />*/}
+        {/*  <NavItem icon="📅" label="Appointments" />*/}
+        {/*  <NavItem icon="👨‍⚕️" label="Doctors List" />*/}
+        {/*  <NavItem icon="⚙️" label="Settings" />*/}
+        {/*</nav>*/}
+
+        <div className="p-1 border-t border-gray-700">
+          <button
+            onClick={() => navigate('/')}
             className="flex items-center text-gray-300 hover:text-white transition-colors"
           >
             <span className="mr-3">🚪</span> Logout
@@ -83,14 +95,17 @@ const ReceptionistDash = () => {
           </div>
 
           {/*  Search Bar */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm">
              <div className="relative w-full md:w-96">
+                 <Search className="absolute left-3 top-3 text-gray-400 " size={18} />
                 <input 
                   type="text" 
-                  placeholder="Search patient by name or phone..." 
+                  placeholder="Search patient by Name or Phone No."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#396d7c] focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e)=>setSearchTerm(e.target.value)}
                 />
-                <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+
              </div>
              <button className="bg-[#396d7c] hover:bg-[#2c5461] text-white px-6 py-2 rounded-lg shadow-md transition-all flex items-center">
                 <span className="mr-2 text-xl">+</span> Register New Patient
@@ -116,8 +131,10 @@ const ReceptionistDash = () => {
                     <th className="p-4 font-medium">Action</th>
                   </tr>
                 </thead>
+
+                  {/*table part*/}
                 <tbody className="divide-y divide-gray-100">
-                  {appointments.map((apt) => (
+                  {patients.map((apt) => (
                     <tr key={apt.id} className="hover:bg-gray-50 transition-colors">
                       <td className="p-4 font-bold text-gray-800">#{apt.id}</td>
                       <td className="p-4">
@@ -134,6 +151,7 @@ const ReceptionistDash = () => {
                           {apt.status}
                         </span>
                       </td>
+                        {/*action column*/}
                       <td className="p-4">
                         <button className="text-gray-400 hover:text-[#396d7c]">
                           ✏️ Edit

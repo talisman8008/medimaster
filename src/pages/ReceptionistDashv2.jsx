@@ -1,196 +1,215 @@
 import React, { useState } from 'react';
 import {
-    Search, Plus, Bell, Calendar, User,
-    Clock, CheckCircle, XCircle, MoreVertical,
-    Phone, FileText, ChevronRight
+    Search, Plus, Bell, User,
+    CheckCircle, XCircle, Edit, Trash2
 } from 'lucide-react';
 
-// Mock Data (Abhi ke liye yahi use kar rahe hain)
-const MOCK_PATIENTS = [
-    { id: 101, name: "Rohan Sharma", age: 24, gender: "M", problem: "High Fever", token: 101, time: "10:30 AM", status: "waiting", phone: "9876543210" },
-    { id: 102, name: "Anjali Verma", age: 34, gender: "F", problem: "Migraine", token: 102, time: "10:45 AM", status: "in-progress", phone: "9876543211" },
-    { id: 103, name: "Vikram Singh", age: 56, gender: "M", problem: "Regular Checkup", token: 103, time: "11:00 AM", status: "done", phone: "9876543212" },
-    { id: 104, name: "Priya Reddy", age: 29, gender: "F", problem: "Stomach Ache", token: 104, time: "11:15 AM", status: "waiting", phone: "9876543213" },
-    { id: 105, name: "Rahul Roy", age: 45, gender: "M", problem: "Back Pain", token: 105, time: "11:30 AM", status: "waiting", phone: "9876543214" },
-];
+const ReceptionistDashv2 = () => {
+    // 1. Data
+    const [patients, setPatients] = useState([
+        { id: 101, token: 101, name: "Rohan Sharma", age: 24, doctor: "Dr. A. Gupta", time: "10:30 AM", status: "waiting", phone: "9876543210" },
+        { id: 102, token: 102, name: "Anjali Verma", age: 34, doctor: "Dr. S. Khan", time: "10:45 AM", status: "in-progress", phone: "9876543211" },
+        { id: 103, token: 103, name: "Vikram Singh", age: 56, doctor: "Dr. A. Gupta", time: "10:00 AM", status: "done", phone: "9876543212" },
+    ]);
 
-const ReceptionistDashv1 = () => {
-    const [selectedPatient, setSelectedPatient] = useState(MOCK_PATIENTS[0]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filter, setFilter] = useState("all"); // all, waiting, done
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newPatient, setNewPatient] = useState({ name: '', age: '', doctor: '', phone: '' });
 
-    // Filter Logic
-    const filteredPatients = MOCK_PATIENTS.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.token.toString().includes(searchTerm);
-        const matchesFilter = filter === "all" ? true : p.status === filter;
-        return matchesSearch && matchesFilter;
-    });
+    // --- LOGIC SECTION ---
 
+    // Filter Logic (Search bar ke liye)
+    const filteredPatients = patients.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.phone.includes(searchTerm)
+    );
+
+    // Status Badge ka color
     const getStatusColor = (status) => {
         switch(status) {
-            case 'waiting': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'in-progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'done': return 'bg-green-100 text-green-800 border-green-200';
+            case 'waiting': return 'bg-yellow-100 text-yellow-800';
+            case 'in-progress': return 'bg-blue-100 text-blue-800';
+            case 'done': return 'bg-green-100 text-green-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
 
+    // Mark Done Function
+    const handleStatusChange = (id, newStatus) => {
+        setPatients(patients.map(p => p.id === id ? { ...p, status: newStatus } : p));
+    };
+
+    // Delete Function
+    const handleDelete = (id) => {
+        if(window.confirm("Are you sure you want to remove this patient?")) {
+            setPatients(patients.filter(p => p.id !== id));
+        }
+    };
+
+    // Add Patient Function
+    const handleAddPatient = (e) => {
+        e.preventDefault();
+        const newId = patients.length + 101;
+        const patientToAdd = {
+            id: newId,
+            token: newId,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: 'waiting',
+            ...newPatient
+        };
+        setPatients([patientToAdd, ...patients]); // List ke top pe add karo
+        setIsModalOpen(false); // Modal band
+        setNewPatient({ name: '', age: '', doctor: '', phone: '' }); // Form clear
+    };
+
     return (
-        <div className="flex h-screen bg-gray-50 font-sans overflow-hidden">
+        <div className="p-6 bg-gray-50 min-h-screen font-sans">
 
-            {/* LEFT PANEL: The List (WhatsApp Style) - 35% Width */}
-            <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col h-full shadow-lg z-10">
-
-                {/* Header Section */}
-                <div className="p-4 border-b border-gray-100 bg-white">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <span className="bg-teal-600 text-white p-1 rounded">MF</span> MedFlow
-                        </h1>
-                        <button className="bg-teal-600 hover:bg-teal-700 text-white p-2 rounded-full shadow-md transition-all">
-                            <Plus size={20} />
-                        </button>
-                    </div>
-
-                    {/* Search Bar */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search by Name or Token..."
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    {/* Filter Tabs */}
-                    <div className="flex gap-2 mt-4 text-sm overflow-x-auto pb-1">
-                        {['all', 'waiting', 'done'].map((f) => (
-                            <button
-                                key={f}
-                                onClick={() => setFilter(f)}
-                                className={`px-3 py-1 rounded-full capitalize transition-colors ${filter === f ? 'bg-teal-100 text-teal-700 font-semibold' : 'text-gray-500 hover:bg-gray-100'}`}
-                            >
-                                {f}
-                            </button>
-                        ))}
-                    </div>
+            {/* HEADER & STATS */}
+            <div className="flex justify-between items-center mb-8">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">Reception Dashboard</h1>
+                    <p className="text-gray-500">Welcome back, Pooja</p>
                 </div>
-
-                {/* The Scrollable List */}
-                <div className="flex-1 overflow-y-auto">
-                    {filteredPatients.map((patient) => (
-                        <div
-                            key={patient.id}
-                            onClick={() => setSelectedPatient(patient)}
-                            className={`p-4 border-b border-gray-50 cursor-pointer transition-all hover:bg-gray-50 group
-                ${selectedPatient?.id === patient.id ? 'bg-teal-50 border-l-4 border-l-teal-600' : 'border-l-4 border-l-transparent'}
-              `}
-                        >
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${selectedPatient?.id === patient.id ? 'bg-teal-200 text-teal-800' : 'bg-gray-200 text-gray-600'}`}>
-                                        {patient.token}
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-semibold ${selectedPatient?.id === patient.id ? 'text-teal-900' : 'text-gray-800'}`}>{patient.name}</h3>
-                                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                                            <Clock size={12} /> {patient.time} • {patient.problem}
-                                        </p>
-                                    </div>
-                                </div>
-                                <span className={`text-[10px] px-2 py-1 rounded-full border ${getStatusColor(patient.status)}`}>
-                  {patient.status.toUpperCase()}
-                </span>
-                            </div>
-                        </div>
-                    ))}
+                <div className="flex items-center gap-4">
+                    <div className="bg-white p-2 rounded-full shadow-sm"><Bell size={20} className="text-gray-600" /></div>
+                    <div className="bg-teal-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">P</div>
                 </div>
             </div>
 
-            {/* RIGHT PANEL: The Details (Cockpit) - 65% Width */}
-            <div className="flex-1 bg-gray-50 flex flex-col h-full relative">
-                {selectedPatient ? (
-                    <>
-                        {/* Top Bar of Right Panel */}
-                        <div className="bg-white p-4 border-b border-gray-200 flex justify-between items-center shadow-sm">
-                            <div>
-                                <span className="text-gray-400 text-xs uppercase tracking-wider font-bold">Current Selection</span>
-                                <h2 className="text-2xl font-bold text-gray-800">{selectedPatient.name}</h2>
-                            </div>
-                            <div className="flex gap-3">
-                                <button className="flex items-center gap-2 px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors">
-                                    <XCircle size={18} /> Cancel
-                                </button>
-                                <button className="flex items-center gap-2 px-6 py-2 bg-teal-600 text-white rounded-lg font-medium shadow-md hover:bg-teal-700 transition-all">
-                                    <CheckCircle size={18} /> Mark Done
-                                </button>
-                            </div>
-                        </div>
+            {/* SEARCH & ADD BUTTON */}
+            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm">
+                <div className="relative w-96">
+                    <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search patient by name or phone..."
+                        className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg shadow-md transition-all flex items-center gap-2 font-medium"
+                >
+                    <Plus size={20} /> Register New Patient
+                </button>
+            </div>
 
-                        {/* Main Content Area */}
-                        <div className="p-8 flex-1 overflow-y-auto">
+            {/* MAIN TABLE */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider">
+                    <tr>
+                        <th className="p-4 border-b">Token</th>
+                        <th className="p-4 border-b">Patient Name</th>
+                        <th className="p-4 border-b">Doctor</th>
+                        <th className="p-4 border-b">Time</th>
+                        <th className="p-4 border-b">Status</th>
+                        <th className="p-4 border-b text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                    {filteredPatients.map((patient) => (
+                        <tr key={patient.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="p-4 font-bold text-teal-700">#{patient.token}</td>
+                            <td className="p-4">
+                                <div className="font-semibold text-gray-800">{patient.name}</div>
+                                <div className="text-xs text-gray-400">{patient.age} Yrs • {patient.phone}</div>
+                            </td>
+                            <td className="p-4 text-gray-600">{patient.doctor}</td>
+                            <td className="p-4 text-gray-500 font-mono text-sm">{patient.time}</td>
+                            <td className="p-4">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusColor(patient.status)}`}>
+                    {patient.status}
+                  </span>
+                            </td>
+                            <td className="p-4">
+                                <div className="flex items-center justify-center gap-2">
+                                    {/* Mark Done Button */}
+                                    <button
+                                        onClick={() => handleStatusChange(patient.id, 'done')}
+                                        title="Mark as Done"
+                                        className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+                                    >
+                                        <CheckCircle size={20} />
+                                    </button>
 
-                            {/* Highlight Card: Token Number */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                <div className="bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-6 text-white shadow-lg transform transition hover:scale-105">
-                                    <p className="text-teal-100 text-sm font-medium mb-1">Token Number</p>
-                                    <h1 className="text-6xl font-extrabold tracking-tighter">#{selectedPatient.token}</h1>
-                                    <p className="mt-4 text-teal-100 text-sm bg-teal-800/30 inline-block px-3 py-1 rounded-full">
-                                        Priority: Normal
-                                    </p>
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={() => handleDelete(patient.id)}
+                                        title="Remove Patient"
+                                        className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
 
-                                <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                                    <h3 className="text-gray-500 text-sm font-bold uppercase mb-4 tracking-wider border-b pb-2">Patient Vitals & Info</h3>
-                                    <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                                        <div>
-                                            <p className="text-gray-400 text-xs">Age / Gender</p>
-                                            <p className="text-lg font-semibold text-gray-800">{selectedPatient.age} Yrs / {selectedPatient.gender}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-400 text-xs">Contact</p>
-                                            <p className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                                <Phone size={16} className="text-teal-500" /> {selectedPatient.phone}
-                                            </p>
-                                        </div>
-                                        <div className="col-span-2">
-                                            <p className="text-gray-400 text-xs">Chief Complaint</p>
-                                            <p className="text-lg font-semibold text-gray-800 bg-gray-50 p-2 rounded-md border border-gray-100 mt-1">
-                                                {selectedPatient.problem}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action History / Notes */}
-                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-gray-800 font-bold flex items-center gap-2">
-                                        <FileText size={20} className="text-gray-400" /> Clinical Notes
-                                    </h3>
-                                    <button className="text-teal-600 text-sm font-medium hover:underline">View History</button>
-                                </div>
-                                <textarea
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    rows="4"
-                                    placeholder="Receptionist internal notes (optional)..."
-                                ></textarea>
-                            </div>
-
-                        </div>
-                    </>
-                ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
-                        <User size={64} className="mb-4 text-gray-200" />
-                        <p>Select a patient from the list to view details</p>
+                {filteredPatients.length === 0 && (
+                    <div className="p-8 text-center text-gray-400">
+                        No patients found matching your search.
                     </div>
                 )}
             </div>
+
+            {/* --- ADD PATIENT MODAL --- */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-in fade-in duration-200">
+                    <div className="bg-white p-8 rounded-2xl shadow-2xl w-[450px]">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-gray-800">New Registration</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-red-500">
+                                <XCircle size={24} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleAddPatient} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-600 mb-1">Full Name</label>
+                                <input required type="text" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                                       value={newPatient.name} onChange={(e) => setNewPatient({...newPatient, name: e.target.value})} placeholder="Enter name" />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-600 mb-1">Age</label>
+                                    <input required type="number" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                                           value={newPatient.age} onChange={(e) => setNewPatient({...newPatient, age: e.target.value})} placeholder="25" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-600 mb-1">Phone</label>
+                                    <input required type="tel" className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                                           value={newPatient.phone} onChange={(e) => setNewPatient({...newPatient, phone: e.target.value})} placeholder="98..." />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-600 mb-1">Assign Doctor</label>
+                                <select className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white"
+                                        value={newPatient.doctor} onChange={(e) => setNewPatient({...newPatient, doctor: e.target.value})}>
+                                    <option value="">Select a Doctor</option>
+                                    <option value="Dr. A. Gupta">Dr. A. Gupta (General)</option>
+                                    <option value="Dr. S. Khan">Dr. S. Khan (Neurology)</option>
+                                    <option value="Dr. R. Kapoor">Dr. R. Kapoor (Ortho)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-xl font-bold shadow-lg transition-all mt-4">
+                                Generate Token & Add
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
 
-export default ReceptionistDashv1;
+export default ReceptionistDashv2;
