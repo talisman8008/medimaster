@@ -12,7 +12,7 @@ const MOCKDB = {
         ]
     },
     '8369930634': {
-        password: 'batata',
+        password: '1234',
         profiles: [{ id: 69, name: 'Jalahua Anada', role: 'receptionist' }]
     }
 };
@@ -40,7 +40,8 @@ const LoginPage = () => {
                 setshowProfileSelector(true);//turns the profile selector page on
                 console.log(password);
             }else{
-                 navigateBasedOnRole([Profiles[0].role])
+                 navigateBasedOnRole(Profiles[0].role)
+                console.log(Profiles[0].role)
             }
         }else{
             showError("Invalid Credentials! Please check your number or password.");
@@ -55,8 +56,13 @@ const LoginPage = () => {
     };
 
     const navigateBasedOnRole=(role)=>{
-        if (role==='receptionist') navigate('/receptionist');
-        else navigate('/patient-dashboard');
+        if (role==='receptionist') {
+            navigate('/receptionist');
+        }
+        else {
+            navigate('/patient-dashboard');
+            console.log("hehe "+role);
+        }
     };
 
     return (

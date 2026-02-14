@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 const ReceptionistDash = () => {
   const navigate = useNavigate();
 
-  // MOCK DATA (Abhi ke liye nakli data)
+  // MOCK DATA
   const [stats] = useState([
     { title: 'Total Patients', count: 124, icon: '👥', color: 'bg-blue-100 text-blue-600' },
     { title: 'Doctors Active', count: 8, icon: '👨‍⚕️', color: 'bg-green-100 text-green-600' },
     { title: 'Pending Tokens', count: 14, icon: '⏳', color: 'bg-yellow-100 text-yellow-600' },
     { title: 'Emergency', count: 2, icon: '🚑', color: 'bg-red-100 text-red-600' },
+
   ]);
 
   const [appointments] = useState([
@@ -64,16 +65,16 @@ const ReceptionistDash = () => {
         </header>
 
         {/* Dashboard Content */}
-        <div className="p-6 space-y-6 overflow-y-auto h-full">
-
+        <div className="p-6 space-y-6 overflow-y-auto h-full ">
           {/* 1. Stats Grid */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
               <div key={index} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center">
                 <div className={`h-12 w-12 rounded-full flex items-center justify-center text-xl ${stat.color}`}>
                   {stat.icon}
                 </div>
-                <div className="ml-4">
+                <div className="ml-4  ">
                   <p className="text-gray-500 text-sm">{stat.title}</p>
                   <p className="text-2xl font-bold text-gray-800">{stat.count}</p>
                 </div>
