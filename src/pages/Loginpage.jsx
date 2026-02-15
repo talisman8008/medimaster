@@ -58,10 +58,14 @@ const LoginPage = () => {
     };
 
     const navigateBasedOnRole=(role)=>{
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("Role",role);
+
         if (role==='receptionist') {
             navigate('/receptionist');
+
         }else if (role === 'receptionist-v1'){
-            navigate('/receptionist2')
+            navigate('/receptionist2');
         }
         else {
             navigate('/patient-dashboard');
