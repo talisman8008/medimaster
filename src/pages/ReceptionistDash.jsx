@@ -19,18 +19,26 @@ const ReceptionistDash = () => {
 
     const [patients, setPatients] = useState([
         { id: 101, token: 101, name: "Rohan Sharma", age: 69, doctor: "Dr. A. Gupta", time: "10:30 AM", status: "Waiting", phone: "9876543210" },
+        { id: 101, token: 101, name: "Rohit Sharma", age: 69, doctor: "Dr. A. Gupta", time: "10:30 AM", status: "Waiting", phone: "9876543210" },
         { id: 102, token: 102, name: "Anjali Verma", age: 96, doctor: "Dr. S. Khan", time: "10:45 AM", status: "in-progress", phone: "9876543211" },
         { id: 103, token: 103, name: "Vikram Singh", age: 42, doctor: "Dr. A. Gupta", time: "10:00 AM", status: "done", phone: "9876543212" },
     ]);
+
+        // search filter
     const [searchTerm,setSearchTerm]=useState("");
-        const filter=patients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.phone.includes(searchTerm)
-        );
+    const filter=patients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())
+            || p.phone.includes(searchTerm));
+        // add patient modal
     const [isModalOpen,setIsModalOpen]=useState(false);
     const [newPatient, setNewPatient] = useState({ name: '', age: '', doctor: '', phone: '' });
+
+
 
     useEffect(()=>{
         document.title="ReceptionDash-v1 |Medflow";
     },[]);
+
+
 
   return (
 
@@ -103,9 +111,10 @@ const ReceptionistDash = () => {
                   placeholder="Search patient by Name or Phone No."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#396d7c] focus:outline-none"
                   value={searchTerm}
-                  onChange={(e)=>setSearchTerm(e.target.value)}
-                />
 
+                  onChange={(e)=>setSearchTerm(e.target.value)
+                }
+                />
              </div>
              <button className="bg-[#396d7c] hover:bg-[#2c5461] text-white px-6 py-2 rounded-lg shadow-md transition-all flex items-center">
                 <span className="mr-2 text-xl">+</span> Register New Patient
@@ -134,7 +143,7 @@ const ReceptionistDash = () => {
 
                   {/*table part*/}
                 <tbody className="divide-y divide-gray-100">
-                  {patients.map((apt) => (
+                  {filter.map((apt) => (
                     <tr key={apt.id} className="hover:bg-gray-50 transition-colors">
                       <td className="p-4 font-bold text-gray-800">#{apt.id}</td>
                       <td className="p-4">
@@ -161,6 +170,11 @@ const ReceptionistDash = () => {
                   ))}
                 </tbody>
               </table>
+                {filter.length === 0 && (
+                    <div className="p-10 text-center">
+                        <p className="text-gray-400">Errr....Found No-one. Recheck entered Patient Name or Number </p>
+                    </div>
+                )}
             </div>
           </div>
 
