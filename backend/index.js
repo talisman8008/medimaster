@@ -1,3 +1,4 @@
+/* eslint-env node */
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -12,12 +13,12 @@ app.use(express.json()); // Parses incoming JSON data
 
 // --- MONGODB CONNECTION (Silent Mode) ---
 // We connect to avoid errors, but we use hardcoded data for logic right now.
-/*mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("✅ MongoDB Connected!"))
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log("✅ CONNECT HOGYA!,NACCHOOO NACCCHOOOO"))
     .catch(err => console.log("❌ DB Connection Error:", err));
-*/
 
-// --- 1. HARDCODED USER DATABASE (The "Judge's Book") ---
+
+// --- 1. HARDCODED USER DATABASE (The "Judgxe's Book") ---
 const USERS_DB = {
     '9082240521': {
         password: 'aloo',
