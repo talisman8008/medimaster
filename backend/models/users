@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
     profiles: [
         {
             name: String,
-            role: { type: String, enum: ['patient', 'receptionist', 'doctor'], default: 'patient' },
+            role: { type: String, enum: ['patient', 'receptionist', 'doctor','recep'], default: 'patient' },
             age: Number,
             relation: String,
             status:{type:Boolean,default:false}//false=offline,true=online

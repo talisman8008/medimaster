@@ -56,7 +56,7 @@ const LoginPage = () => {
 
         if (role === 'receptionist') {
             navigate('/receptionist');
-        } else if (role === 'receptionist-v1') {
+        } else if (role === 'recep') {
             navigate('/receptionist2');
         } else {
             navigate('/patient-dashboard');
