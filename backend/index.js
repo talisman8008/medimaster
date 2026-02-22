@@ -2,6 +2,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const User=require('./models/users');
 require('dotenv').config();
 
 const app = express();
@@ -11,13 +13,22 @@ const PORT = process.env.PORT || 5000;
 app.use(cors()); // Allows Frontend to talk to Backend
 app.use(express.json()); // Parses incoming JSON data
 
-// --- MONGODB CONNECTION (Silent Mode) ---
-// We connect to avoid errors, but we use hardcoded data for logic right now.
+
+// --- MONGODB CONNECTION  ---
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ CONNECT HOGYA!,NACCHOOO NACCCHOOOO"))
     .catch(err => console.log("❌ DB Connection Error:", err));
 
+app.post('/api/registration', async(req,res)=>{
+    try {
+        const { mobile,password,name }=req.body;
+        let user = await User.findOne({mobile});
+        if(user) return res.status(400).json({message:"user already exists!"});
 
+    } catch (err){
+        res.status(500).json({message:"server error"})
+    }
+}
 // --- 1. HARDCODED USER DATABASE (The "Judgxe's Book") ---
 const USERS_DB = {
     '9082240521': {
