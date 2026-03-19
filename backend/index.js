@@ -24,15 +24,12 @@ mongoose.connect(process.env.MONGO_URI)
 app.post('/api/register', async (req, res) => {
     try {
         const { mobile, password, name, role, age, relation } = req.body;
-
         // Check if user already exists
         let user = await User.findOne({ mobile });
         if (user) return res.status(400).json({ message: "Mobile already registered!" });
-
         // Hash the password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-
         // Create new user using your schema
         const newUser = new User({
             mobile,
