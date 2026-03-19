@@ -1,4 +1,103 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Base Reset & Defaults ── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans bg-surface-100 text-gray-800;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+
+  /* Soft scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-400 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-300;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary-300 ring-offset-2 ring-offset-white;
+  }
+}
+
+/* ── Reusable Components ── */
+@layer components {
+
+  /* Clean card with subtle shadow */
+  .card {
+    @apply bg-white rounded-2xl border border-surface-200 shadow-card;
+  }
+
+  /* Input fields — warm light style */
+  .input-field {
+    @apply w-full px-4 py-3.5 bg-surface-50 border border-surface-300 rounded-xl text-gray-800
+           placeholder:text-gray-400 font-medium
+           focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-100 focus:outline-none
+           transition-all duration-300;
+  }
+
+  /* Primary button — teal gradient */
+  .btn-primary {
+    @apply px-6 py-3 bg-primary-500 rounded-xl
+           text-white font-bold shadow-glow-teal
+           hover:bg-primary-600 hover:shadow-lg hover:shadow-primary-200
+           active:scale-[0.98]
+           transition-all duration-300;
+  }
+
+  /* Secondary / ghost button */
+  .btn-secondary {
+    @apply px-6 py-3 bg-surface-100 border border-surface-300 rounded-xl
+           text-gray-600 font-semibold
+           hover:bg-surface-200 hover:text-gray-800 hover:border-surface-400
+           active:scale-[0.98]
+           transition-all duration-300;
+  }
+
+  /* Status badges */
+  .badge {
+    @apply px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider
+           inline-flex items-center gap-1.5;
+  }
+  .badge-waiting {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  }
+  .badge-progress {
+    @apply bg-blue-50 text-blue-700 border border-blue-200;
+  }
+  .badge-done {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  }
+
+  /* Table row hover */
+  .table-row-hover {
+    @apply hover:bg-primary-50/50 transition-all duration-200 cursor-pointer;
+  }
+}
+
+/* ── Animation Delays ── */
+@layer utilities {
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+}

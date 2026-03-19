@@ -3,10 +3,10 @@ import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
     // check if token is there in local storage or not
-    // acceept the token from backend and compare
-    const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
+    const token = localStorage.getItem("token");
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-    if (!isAuthenticated) {
+    if (!token && !isLoggedIn) {
         //if false redirects to login page
         return <Navigate to="/" replace />;
     }
