@@ -1,171 +1,216 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const ReceptionistDash = () => {
+const LoginPage = () => {
+    const [mobile, setMobile] = useState('');
+    const [password, setPassword] = useState('');
+    const [showProfileSelector, setshowProfileSelector] = useState(false);
+    const [linkedProfiles, setlinkedProfiles] = useState([]);
+    const [error, setError] = useState('');
+
     const navigate = useNavigate();
-    const [userName, setUserName] = useState('Receptionist');
 
-    // Component load hote hi LocalStorage se naam nikal lenge
-    useEffect(() => {
-        const storedName = localStorage.getItem('UserName');
-        if (storedName) {
-            setUserName(storedName);
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            // Backend connecttion
+            const res = await axios.post('http://localhost:5000/api/login', {
+                mobile: mobile,
+                password: password
+            });
+
+            if (res.data.success) {
+                const profiles = res.data.profiles;
+                if (profiles.length > 1) {
+                    setlinkedProfiles(profiles);
+                    setshowProfileSelector(true);
+                } else {
+                    navigateBasedOnRole(profiles[0]);
+                }
+            }
+        } catch (err) {
+            console.error("Login Error:", err);
+            const errorMsg = err.response?.data?.message || "Server connect nahi ho raha!";
+            showError(errorMsg);
         }
-    }, []);
+    };
 
-    // Logout Function
-    const handleLogout = () => {
-        localStorage.clear(); // Saara data saaf
-        navigate('/'); // Login page pe wapas
+    const showError = (message) => {
+        setError(message);
+        setTimeout(() => setError(''), 3000);
+    };
+
+    const navigateBasedOnRole = (profile) => {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("Role", profile.role);
+        localStorage.setItem("UserName", profile.name);
+
+        if (profile.role === 'receptionist') {
+            navigate('/receptionist');
+        } else if (profile.role === 'recep') {
+            navigate('/receptionist2');
+        } else {
+            navigate('/patient-dashboard');
+        }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen flex">
+            {/* Left Side */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-white p-8 ">
+                <div className="w-full max-w-md space-y-8 md:p-12 md:border-transparent border-2 p-6 border-hovbor rounded-xl">
 
-            {/* ⬅️ SIDEBAR */}
-            <div className="w-64 bg-[#112025] text-white flex flex-col justify-between hidden md:flex">
-                <div>
-                    <div className="p-6 flex items-center justify-center border-b border-gray-700">
-                        <h1 className="text-2xl font-extrabold text-white tracking-wider">
-                            Medi<span className="text-[#396d7c]">Flow</span>
-                        </h1>
+                    {/* Header */}
+                    <div className="text-center">
+                        <h2 className="text-4xl font-extrabold text-[#112025] tracking-tight">
+                            {showProfileSelector ? "Who is checking in?" : "Welcome back"}
+                        </h2>
+                        <p className="mt-2 text-sm text-gray-600">
+                            {showProfileSelector ? "Select the patient to continue" :
+                                <span>Access your <span className="text-[#396d7c] font-bold">MediFlow</span> workspace.</span>}
+                        </p>
                     </div>
-                    <nav className="mt-6">
-                        <a href="#" className="flex items-center py-3 px-6 bg-[#396d7c] text-white border-l-4 border-white">
-                            <svg className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                            Dashboard
-                        </a>
-                        <a href="#" className="flex items-center py-3 px-6 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-                            <svg className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                            Patients
-                        </a>
-                        <a href="#" className="flex items-center py-3 px-6 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
-                            <svg className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            Appointments
-                        </a>
-                    </nav>
-                </div>
-                <div className="p-6">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center py-2 px-4 border border-gray-600 rounded-lg text-gray-400 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all"
-                    >
-                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                        Sign Out
-                    </button>
+
+                    {/* Profile Selector OR Login Form */}
+                    {showProfileSelector ? (
+                        <div className="w-full animate-fade-in-up">
+                            <div className="text-center mb-8">
+                                <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-[#396d7c] mb-4">
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-2xl font-bold text-[#112025]">Who is checking in?</h2>
+                                <p className="text-gray-500 text-sm mt-1">Select the patient profile to continue</p>
+                            </div>
+
+                            <div className="grid gap-4">
+                                {linkedProfiles.map((profile, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => navigateBasedOnRole(profile)}
+                                        className="group relative flex items-center p-4 bg-white border-2 border-gray-100 rounded-xl hover:border-[#396d7c] hover:shadow-md transition-all duration-200 text-left w-full"
+                                    >
+                                        <div className="flex-shrink-0 h-14 w-14 rounded-full bg-gradient-to-br from-[#396d7c] to-[#2c5461] text-white flex items-center justify-center text-xl font-bold shadow-sm group-hover:scale-110 transition-transform duration-200">
+                                            {profile.name.charAt(0)}
+                                        </div>
+                                        <div className="ml-4 flex-1">
+                                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-[#396d7c] transition-colors">
+                                                {profile.name}
+                                            </h3>
+                                            <div className="flex items-center mt-1 space-x-2">
+                                                <span className="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                                    {profile.relation || 'Staff'}
+                                                </span>
+                                                {profile.age && <span className="text-xs text-gray-500">• {profile.age} Years</span>}
+                                            </div>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="mt-8 text-center">
+                                <button
+                                    onClick={() => setshowProfileSelector(false)}
+                                    className="text-sm font-medium text-gray-500 hover:text-[#396d7c] transition-colors flex items-center justify-center mx-auto space-x-1"
+                                >
+                                    <span>← Use a different mobile number</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    ) : (
+                        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+                            <div className="space-y-4">
+                                {/* Number Input */}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="tel"
+                                        required
+                                        maxLength="10"
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#396d7c] focus:border-transparent outline-none transition-all"
+                                        placeholder="Mobile Number"
+                                        value={mobile}
+                                        onChange={(e) => setMobile(e.target.value)}
+                                    />
+                                </div>
+
+                                {/* Password Input */}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="password"
+                                        required
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#396d7c] focus:border-transparent outline-none transition-all"
+                                        placeholder="Password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#396d7c] hover:bg-[#2c5461] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#396d7c] transition duration-200 transform hover:scale-[1.02]"
+                            >
+                                Sign in to Dashboard
+                            </button>
+                        </form>
+                    )}
+
+                    <div className="text-center mt-4">
+                        <p className="text-xs text-gray-500">
+                            © 2026 MediFlow Systems. All rights reserved. <br />
+                            Protected by Prayers and Hopes.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            {/* ➡️ MAIN CONTENT AREA */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-
-                {/* Top Header */}
-                <header className="flex justify-between items-center p-6 bg-white border-b border-gray-200 shadow-sm">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Welcome back, {userName} 👋</h2>
-                        <p className="text-sm text-gray-500 mt-1">Here is what's happening at the front desk today.</p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <button className="bg-[#396d7c] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#2c5461] transition-colors shadow-sm">
-                            + New Patient
-                        </button>
-                        <div className="h-10 w-10 rounded-full bg-[#112025] text-white flex items-center justify-center font-bold text-lg border-2 border-[#396d7c]">
-                            {userName.charAt(0).toUpperCase()}
-                        </div>
-                    </div>
-                </header>
-
-                {/* Dashboard Widgets (Scrollable) */}
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-[#396d7c]">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Today's Appointments</p>
-                                    <p className="text-3xl font-bold text-gray-800 mt-1">24</p>
-                                </div>
-                                <div className="p-3 bg-blue-50 rounded-full text-[#396d7c]">
-                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-green-500">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Patients Checked In</p>
-                                    <p className="text-3xl font-bold text-gray-800 mt-1">12</p>
-                                </div>
-                                <div className="p-3 bg-green-50 rounded-full text-green-600">
-                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 border-l-4 border-l-orange-400">
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">Pending Approvals</p>
-                                    <p className="text-3xl font-bold text-gray-800 mt-1">5</p>
-                                </div>
-                                <div className="p-3 bg-orange-50 rounded-full text-orange-500">
-                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Table Area */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-[#112025]">Recent Patient Queue</h3>
-                            <button className="text-sm text-[#396d7c] font-medium hover:underline">View All</button>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                <tr className="bg-gray-50 text-gray-500 text-sm border-b border-gray-200">
-                                    <th className="p-4 font-medium">Patient Name</th>
-                                    <th className="p-4 font-medium">Mobile Number</th>
-                                    <th className="p-4 font-medium">Status</th>
-                                    <th className="p-4 font-medium">Time</th>
-                                    <th className="p-4 font-medium">Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 font-medium text-gray-800">Rahul Sharma</td>
-                                    <td className="p-4 text-gray-500">+91 9876543210</td>
-                                    <td className="p-4">
-                                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">Waiting</span>
-                                    </td>
-                                    <td className="p-4 text-gray-500">10:15 AM</td>
-                                    <td className="p-4">
-                                        <button className="text-[#396d7c] hover:text-[#2c5461] font-medium text-sm">Admit</button>
-                                    </td>
-                                </tr>
-                                <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 font-medium text-gray-800">Priya Singh</td>
-                                    <td className="p-4 text-gray-500">+91 9123456780</td>
-                                    <td className="p-4">
-                                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">Consulting</span>
-                                    </td>
-                                    <td className="p-4 text-gray-500">09:45 AM</td>
-                                    <td className="p-4">
-                                        <button className="text-gray-400 hover:text-gray-600 font-medium text-sm">Details</button>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </main>
+            {/* Right Side (Image) */}
+            <div className="hidden md:block md:w-1/2 relative">
+                <img
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1953&q=80"
+                    alt="Hospital Background"
+                />
+                <div className="absolute inset-0 bg-[#396d7c] opacity-40 mix-blend-multiply"></div>
+                <div className="absolute inset-0 flex flex-col justify-end p-12 text-white z-10">
+                    <h3 className="text-4xl font-bold mb-2">Streamlining care with responsibility.</h3>
+                    <p className="text-lg text-gray-100 opacity-90">
+                        "The art of medicine consists of amusing the patient while nature cures the disease."
+                    </p>
+                </div>
             </div>
+
+            {/* Error Popup */}
+            {error && (
+                <div className="fixed top-5 left-5 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg z-50 animate-bounce">
+                    <div className="flex items-center">
+                        <div className="py-1">
+                            <svg className="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p className="font-bold">Error</p>
+                            <p className="text-sm">{error}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default ReceptionistDash;
+export default LoginPage;
