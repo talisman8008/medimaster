@@ -12,9 +12,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<LoginPage />} />
 
-                {/*<Route path="/receptionist" element={<ProtectedRoute><ReceptionistDash /> </ProtectedRoute>} />*/}
-                {/*for Testing) */}
-                <Route path="/receptionist-dash" element={<ReceptionistDash />} />
+                <Route path="/receptionist" element={<ProtectedRoute><ReceptionistDash /> </ProtectedRoute>} />
                 {/*hehehhe*/}
             </Routes>
         </HashRouter>

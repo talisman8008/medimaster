@@ -20,7 +20,7 @@ const patientProfileSchema = new mongoose.Schema({
     },
     weight:{ //in Kgs
         type:Number,
-        required:true
+        // required:true
     },
     address:{
         type:String

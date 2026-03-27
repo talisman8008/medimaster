@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const User = require('./models/users'); // Tera User schema
+const User = require('./models/users'); //  User schema
+require('dotenv').config();
 
-// 🚨 YAHAN APNI MONGODB KI LINK DAALNA MAT BHOOLNA!
-// (Jo tere index.js ya .env file mein hai)
-const MONGO_URI = "mongodb://deveshhegde04_db_user:aloonobatata@ac-ebwc1rz-shard-00-00.yzk94jv.mongodb.net:27017,ac-ebwc1rz-shard-00-01.yzk94jv.mongodb.net:27017,ac-ebwc1rz-shard-00-02.yzk94jv.mongodb.net:27017/?ssl=true&replicaSet=atlas-4zngg5-shard-0&authSource=admin&appName=Cluster0";
 
+const MONGO_URI = process.env.MONGO_URI;
 const createTestReceptionist = async () => {
     try {
-        // 1. Database se connect karo
         console.log("⏳ Connecting to Database...");
         await mongoose.connect(MONGO_URI);
         console.log("✅ Connected!");
 
-        // 2. Check karo agar pehle se account hai toh
-        const existingUser = await User.findOne({ username: "recep1" });
+        const existingUser = await User.findOne({ username: "Devesh" });
         if (existingUser) {
             console.log("⚠️ Account pehle se bana hua hai bhai!");
             process.exit();
@@ -22,14 +19,14 @@ const createTestReceptionist = async () => {
 
         // 3. Password Encrypt
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash("mediflow420", salt);
+        const hashedPassword = await bcrypt.hash("1234", salt);
 
-        // 4. Receptionist ka Data banao
+        // 4. Receptionist ka Data
         const testReceptionist = new User({
-            username: "admin1",
+            username: "Talisman",
             password: hashedPassword,
-            name: "Devesh (tech developer)",
-            mobile: "9082240521",
+            name: "dev (tech developer)",
+            mobile: "9967844853",
             age: 69,
             role: "receptionist",
             status: "Active"
