@@ -11,7 +11,7 @@ const createTestReceptionist = async () => {
         await mongoose.connect(MONGO_URI);
         console.log("✅ Connected!");
 
-        const existingUser = await User.findOne({ username: "Devesh" });
+        const existingUser = await User.findOne({ username: "admin" });
         if (existingUser) {
             console.log("⚠️ Account pehle se bana hua hai bhai!");
             process.exit();
@@ -19,14 +19,14 @@ const createTestReceptionist = async () => {
 
         // 3. Password Encrypt
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash("1234", salt);
+        const hashedPassword = await bcrypt.hash("4321", salt);
 
         // 4. Receptionist ka Data
         const testReceptionist = new User({
-            username: "Talisman",
+            username: "admin",
             password: hashedPassword,
             name: "dev (tech developer)",
-            mobile: "9967844853",
+            mobile: "9967844854",
             age: 69,
             role: "receptionist",
             status: "Active"
@@ -37,8 +37,8 @@ const createTestReceptionist = async () => {
 
         console.log("🎉 SUCCESS! Test Receptionist Account Created.");
         console.log("-----------------------------------------");
-        console.log("👉 Login ID: admin1");
-        console.log("👉 Password: mediflow123");
+        console.log("👉 Login ID: admin");
+        console.log("👉 Password: 4321");
         console.log("-----------------------------------------");
 
         process.exit();

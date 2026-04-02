@@ -1,31 +1,43 @@
-const User = require('../models/users'); // Path check kar lena agar alag ho
+const User = require('../models/users'); 
 const PatientProfile = require('../models/PatientProfile');
 const bcrypt = require('bcryptjs');
 
 // ==========================================
-// 1. LOGIN LOGIC (For Receptionist/Doctor)
+// 1. LOGIN LOGIC (Diagnostic Version)
 // ==========================================
 exports.login = async (req, res) => {
     try {
+        console.log("▶️ 1. LOGIN API HIT! Received body:", req.body);
+
         const { username, password } = req.body;
 
         if (!username || !password) {
+            console.log("❌ 2. Missing data!");
             return res.status(400).json({ success: false, message: "Username aur Password dono chahiye!" });
         }
 
-        // 1. User dhoondo (Case insensitive)
-        const user = await User.findOne({ username: username.toLowerCase() });
+        console.log(`🔍 3. Searching database for: ${username}`);
+        // Safe search: Ignores uppercase/lowercase issues just in case
+        const user = await User.findOne({ 
+            username: { $regex: new RegExp("^" + username + "$", "i") } 
+        });
+
         if (!user) {
+            console.log("❌ 4. User not found in DB!");
             return res.status(401).json({ success: false, message: "Invalid Credentials (User hi nahi mila)" });
         }
 
-        // 2. Password match karo (Bcrypt ke through)
-        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("🔐 5. User found! Here is their DB password:", user.password);
+
+        // Crucial fix: Wrap password in String() to prevent bcrypt number crashes
+        const isMatch = await bcrypt.compare(String(password), user.password);
+        
         if (!isMatch) {
+            console.log("❌ 6. Password wrong!");
             return res.status(401).json({ success: false, message: "Invalid Credentials (Password galat hai)" });
         }
 
-        // 3. Success! Bouncer ne entry de di
+        console.log("✅ 7. Success! Logging in...");
         res.status(200).json({
             success: true,
             message: "Login Successful!",
@@ -38,11 +50,11 @@ exports.login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Login Error:", error);
-        res.status(500).json({ success: false, message: "Server crash ho gaya!" });
+        // THIS IS THE MAGIC LINE: It will print the exact reason for the 500 crash!
+        console.error("🔥 CRITICAL CRASH:", error); 
+        res.status(500).json({ success: false, message: "Crash Reason: " + error.message });
     }
 };
-
 // ==========================================
 // 2. REGISTER NEW PATIENT LOGIC
 // ==========================================
@@ -100,5 +112,20 @@ exports.registerPatient = async (req, res) => {
     } catch (err) {
         console.error("Registration Error:", err);
         res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    }
+};
+exports.getAllPatients = async (req, res) => {
+    try {
+        // Go to the database and find ALL patient profiles
+        const patients = await PatientProfile.find({});
+        
+        res.status(200).json({
+            success: true,
+            count: patients.length,
+            patients: patients
+        });
+    } catch (error) {
+        console.error("Error fetching patients:", error);
+        res.status(500).json({ success: false, message: "Could not fetch patients" });
     }
 };
